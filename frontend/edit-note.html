@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./style/add-note-style.css">
+</head>
+
+<body>
+
+
+    <div>
+        <h3 style="text-align: center;">Edit a note</h3>
+        <input type="text" id="note-title" placeholder="Type in your note title">
+        <textarea id="note-body" placeholder="Type a note" rows="10"></textarea>
+        <button id="edit-note-button">Edit note</button>
+        <button onclick="history.back()" style="color: blue; background-color: white; border: 1px solid blue;">Back</button>
+    </div>
+
+    <script src="./script/setup.js"></script>
+    <script>
+
+        const title = document.getElementById("note-title");
+        const body = document.getElementById("note-body");
+        const editNoteButton = document.getElementById("edit-note-button");
+
+        const id = location.search.slice(4);
+        console.log(id);
+
+        async function shoNote() {
+
+
+            const response = await fetch(urlMaker("/note/" + id), {
+                method: "GET",
+                headers: {
+                    Authorization: getToken()
+                }
+            });
+
+            const data = await response.json();
+
+            console.log(data);
+
+            title.value = data.notes.title;
+            body.value = data.notes.body;
+
+        }
+
+        shoNote();
+
+        editNoteButton.addEventListener("click", async () => {
+
+            try {
+
+                const response = await fetch(urlMaker("/note/" + id), {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: getToken()
+                    },
+                    body: JSON.stringify({
+                        title: title.value,
+                        body: body.value
+                    })
+                });
+
+                if (response.status == 200) {
+                    alert("Note updated successfylly");
+                    location.assign("/frontend/dashboard.html");
+                }
+
+            } catch (error) {
+                console.log(error);
+                alert("An error occurred while trying to update your note");
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>
